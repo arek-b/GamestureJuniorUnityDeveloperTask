@@ -1,0 +1,66 @@
+{
+    "name": "Controls",
+    "maps": [
+        {
+            "name": "Touch",
+            "id": "904d0617-91a6-476a-b0c5-c470ad70deb2",
+            "actions": [
+                {
+                    "name": "Tap",
+                    "type": "Value",
+                    "id": "084005b1-cdd8-4200-8c85-89e802f25cfc",
+                    "expectedControlType": "Touch",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Touch",
+                    "type": "Value",
+                    "id": "d5ce349e-8142-41b1-899f-1a6f8e6bbbb1",
+                    "expectedControlType": "Touch",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "b412af83-aa46-4c76-b31a-09c20fe5d823",
+                    "path": "<Touchscreen>/primaryTouch/tap",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Touch",
+                    "action": "Tap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "df5e1f8e-9e2f-4b3c-9a95-4d109325085f",
+                    "path": "<Touchscreen>/primaryTouch",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Touch",
+                    "action": "Touch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": [
+        {
+            "name": "Touch",
+            "bindingGroup": "Touch",
+            "devices": [
+                {
+                    "devicePath": "<Touchscreen>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        }
+    ]
+}
