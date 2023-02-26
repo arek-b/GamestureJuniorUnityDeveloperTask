@@ -19,11 +19,11 @@ namespace Inventory
         private Item item;
         private ScrollRect scrollRect;
 
-        private bool empty = true;
-        private bool isMoving = false;
-
         private Coroutine updateCoroutine = null;
         private Vector2 targetPosition;
+
+        private enum ItemState { Empty, NotMoving, Moving }
+        private ItemState itemState = ItemState.Empty;
 
         private void Awake()
         {
@@ -31,7 +31,19 @@ namespace Inventory
             canvas = GetComponentInParent<Canvas>();
             scrollRect = GetComponentInParent<ScrollRect>();
             item = GetComponentInChildren<Item>();
-            empty = item == null;
+        }
+
+        private void Start()
+        {
+            if (!ItemIsEmpty())
+                itemState = ItemState.NotMoving;
+        }
+
+        private bool ItemIsEmpty()
+        {
+            if (item == null)
+                return true;
+            return !item.HasItem;
         }
 
         public void Tap()
@@ -41,12 +53,12 @@ namespace Inventory
 
         public void StartDrag(TouchState data)
         {
-            empty = item == null;
+            itemState = ItemIsEmpty() ? ItemState.Empty : ItemState.NotMoving;
         }
 
         public void ContinueDrag(TouchState data)
         {
-            if (empty)
+            if (itemState == ItemState.Empty)
                 return;
 
             float dragTime = Time.realtimeSinceStartup - (float)data.startTime;
@@ -54,10 +66,10 @@ namespace Inventory
                 return;
 
             Vector2 movement = data.position - data.startPosition;
-            if (!isMoving && Mathf.Abs(movement.x) < dragHorizontalThreshold)
+            if (itemState != ItemState.Moving && Mathf.Abs(movement.x) < dragHorizontalThreshold)
                 return;
 
-            if (isMoving)
+            if (itemState == ItemState.Moving)
                 ContinueMoving(data);
             else
                 StartMoving();
@@ -65,7 +77,7 @@ namespace Inventory
 
         private void StartMoving()
         {
-            isMoving = true;
+            itemState = ItemState.Moving;
             item.transform.SetParent(canvas.transform, worldPositionStays: true);
             scrollRect.vertical = false; // temporarily prevent ScrollRect from scrolling
             if (updateCoroutine == null)
@@ -76,7 +88,7 @@ namespace Inventory
 
         private IEnumerator UpdateCoroutine()
         {
-            while (isMoving)
+            while (itemState == ItemState.Moving)
             {
                 item.transform.position = Vector2.Lerp(item.transform.position, targetPosition, Time.deltaTime * dragFollowSpeed);
                 yield return null;
@@ -90,17 +102,17 @@ namespace Inventory
 
         public void EndDrag(TouchState data)
         {
-            if (empty || !isMoving)
+            if (itemState != ItemState.Moving)
                 return;
 
             scrollRect.vertical = true;
-            isMoving = false;
             if (updateCoroutine != null)
             {
                 StopCoroutine(updateCoroutine);
                 updateCoroutine = null;
             }
             item = null;
+            itemState = ItemState.Empty;
         }
     }
 }
