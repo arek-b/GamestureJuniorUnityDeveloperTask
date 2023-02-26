@@ -14,17 +14,22 @@ namespace Inventory
         [SerializeField] private float dragFollowSpeed = 20f;
 
         private Canvas canvas;
-        private Item item;
+        private GraphicRaycaster graphicRaycaster;
+        private ItemInSlot item;
         private ScrollRect scrollRect;
 
-        private enum ItemState { Empty, NotMoving, Moving }
+        private Raycaster raycaster;
+
+        private enum ItemState { Empty, NotMoving, Moving, Returning }
         private ItemState itemState = ItemState.Empty;
 
         private void Awake()
         {
             canvas = GetComponentInParent<Canvas>();
+            graphicRaycaster = canvas.GetComponent<GraphicRaycaster>();
             scrollRect = GetComponentInParent<ScrollRect>();
-            item = GetComponentInChildren<Item>();
+            item = GetComponentInChildren<ItemInSlot>();
+            raycaster = new Raycaster(graphicRaycaster);
         }
 
         private void Start()
@@ -42,7 +47,9 @@ namespace Inventory
 
         public void Tap()
         {
-            item.GetComponent<Image>().color = Color.red;
+            if (itemState != ItemState.NotMoving)
+                return;
+            item.GetComponent<Image>().color = Color.red; // todo: change this!
         }
 
         public void StartDrag(TouchState data)
@@ -52,7 +59,7 @@ namespace Inventory
 
         public void ContinueDrag(TouchState data)
         {
-            if (itemState == ItemState.Empty)
+            if (itemState == ItemState.Empty || itemState == ItemState.Returning)
                 return;
 
             float dragTime = Time.realtimeSinceStartup - (float)data.startTime;
@@ -81,8 +88,17 @@ namespace Inventory
             item.StopMoving();
             scrollRect.vertical = true;
 
-            item = null;
-            itemState = ItemState.Empty;
+            if (raycaster.Raycast(out EquippedSlot equippedSlot, data.position) && item.Item.itemType == equippedSlot.ItemType)
+            {
+                equippedSlot.Equip(item);
+                itemState = ItemState.Empty;
+                item = null;
+            }
+            else
+            {
+                itemState = ItemState.Returning;
+                item.Return(onReturned: () => itemState = ItemState.NotMoving);
+            }
         }
     }
 }
