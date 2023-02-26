@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.UI;
 using UIInput;
 using UnityEngine.InputSystem.LowLevel;
@@ -19,15 +17,11 @@ namespace Inventory
         private Item item;
         private ScrollRect scrollRect;
 
-        private Coroutine updateCoroutine = null;
-        private Vector2 targetPosition;
-
         private enum ItemState { Empty, NotMoving, Moving }
         private ItemState itemState = ItemState.Empty;
 
         private void Awake()
         {
-            targetPosition = transform.position;
             canvas = GetComponentInParent<Canvas>();
             scrollRect = GetComponentInParent<ScrollRect>();
             item = GetComponentInChildren<Item>();
@@ -70,34 +64,13 @@ namespace Inventory
                 return;
 
             if (itemState == ItemState.Moving)
-                ContinueMoving(data);
+                item.ContinueMoving(data.position);
             else
-                StartMoving();
-        }
-
-        private void StartMoving()
-        {
-            itemState = ItemState.Moving;
-            item.transform.SetParent(canvas.transform, worldPositionStays: true);
-            scrollRect.vertical = false; // temporarily prevent ScrollRect from scrolling
-            if (updateCoroutine == null)
             {
-                updateCoroutine = StartCoroutine(UpdateCoroutine());
+                item.StartMoving(newParent: canvas.transform, speed: dragFollowSpeed);
+                itemState = ItemState.Moving;
+                scrollRect.vertical = false; // temporarily prevent ScrollRect from scrolling
             }
-        }
-
-        private IEnumerator UpdateCoroutine()
-        {
-            while (itemState == ItemState.Moving)
-            {
-                item.transform.position = Vector2.Lerp(item.transform.position, targetPosition, Time.deltaTime * dragFollowSpeed);
-                yield return null;
-            }
-        }
-
-        private void ContinueMoving(TouchState data)
-        {
-            targetPosition = data.position;
         }
 
         public void EndDrag(TouchState data)
@@ -105,12 +78,9 @@ namespace Inventory
             if (itemState != ItemState.Moving)
                 return;
 
+            item.StopMoving();
             scrollRect.vertical = true;
-            if (updateCoroutine != null)
-            {
-                StopCoroutine(updateCoroutine);
-                updateCoroutine = null;
-            }
+
             item = null;
             itemState = ItemState.Empty;
         }
