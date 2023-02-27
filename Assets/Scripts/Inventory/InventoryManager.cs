@@ -1,13 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Audio;
+using UnityEngine.Assertions;
 
 namespace Inventory
 {
     public class InventoryManager : MonoBehaviour
     {
+        [SerializeField] private AudioPlayer audioPlayer = null;
+        [SerializeField] private AudioClip[] equipAudioClips = null;
         [SerializeField] private Transform inventorySlotContainer = null;
         [SerializeField, HideInInspector] private List<Slot> slots = new();
+
+        private readonly System.Random random = new();
 
         private void OnValidate()
         {
@@ -26,6 +32,12 @@ namespace Inventory
             foreach (Transform child in inventorySlotContainer)
                 if (child.TryGetComponent(out Slot slot))
                     slots.Add(slot);
+        }
+
+        private void Awake()
+        {
+            Assert.IsNotNull(audioPlayer);
+            Assert.IsNotNull(inventorySlotContainer);
         }
 
         private void OnEnable()
@@ -50,6 +62,8 @@ namespace Inventory
             equippedSlot.SetItem(newItem);
             slot.Item.SetItem(oldItem);
 
+            PlayEquipAudio();
+
             if (oldItem == null)
                 RemoveGap();
         }
@@ -65,6 +79,13 @@ namespace Inventory
                     break;
                 }
             }
+        }
+
+        private void PlayEquipAudio()
+        {
+            if (equipAudioClips.Length == 0)
+                return;
+            audioPlayer.PlayClip(equipAudioClips[random.Next(0, equipAudioClips.Length - 1)]);
         }
     }
 }
