@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Inventory
 {
-    public class ItemInSlot : MonoBehaviour
+    public class ItemInSlot : MonoBehaviour, IHasItem
     {
         [SerializeField] private ItemScriptableObject item = null;
 
@@ -13,8 +13,8 @@ namespace Inventory
         private Transform originalParent;
         private Vector2 originalLocalPosition;
 
-        public bool HasItem => item != null;
-        public ItemScriptableObject Item => item;
+        public bool NotEmpty => item != null;
+        public ItemScriptableObject GetItem() => item;
 
         private Coroutine updateCoroutine = null;
         private float speed = 1f;
@@ -24,7 +24,7 @@ namespace Inventory
 
         private void OnValidate()
         {
-            if (!HasItem)
+            if (!NotEmpty)
                 return;
             if (TryGetComponent(out Image image))
                 image.sprite = item.itemSprite;
@@ -32,7 +32,7 @@ namespace Inventory
 
         private void Awake()
         {
-            if (TryGetComponent(out image) && !HasItem)
+            if (TryGetComponent(out image) && !NotEmpty)
                 image.color = Color.clear;
 
             originalParent = transform.parent;
@@ -91,11 +91,14 @@ namespace Inventory
 
         private IEnumerator ReturnCoroutine(Action onReturned)
         {
-            Vector2 startingPosition = transform.position;
-            for (float lerpValue01 = 0f; lerpValue01 < 1f; lerpValue01 += Time.deltaTime * speed)
+            if (item != null)
             {
-                transform.position = Vector2.Lerp(startingPosition, originalParent.position, lerpValue01);
-                yield return null;
+                Vector2 startingPosition = transform.position;
+                for (float lerpValue01 = 0f; lerpValue01 < 1f; lerpValue01 += Time.deltaTime * speed)
+                {
+                    transform.position = Vector2.Lerp(startingPosition, originalParent.position, lerpValue01);
+                    yield return null;
+                }
             }
             ResetParentPositionAndRaycastTarget();
             isReturning = false;
@@ -109,19 +112,19 @@ namespace Inventory
             image.raycastTarget = true;
         }
 
-        public void Clear()
+        public void SetItem(ItemScriptableObject item)
         {
-            ResetParentPositionAndRaycastTarget();
-            item = null;
-            image.sprite = null;
-            image.color = Color.clear;
-        }
-
-        public Sprite GetSprite()
-        {
-            if (!HasItem)
-                return null;
-            return image.sprite;
+            this.item = item;
+            if (item == null)
+            {
+                image.sprite = null;
+                image.color = Color.clear;
+            }
+            else
+            {
+                image.sprite = item.itemSprite;
+                image.color = Color.white;
+            }
         }
     }
 }

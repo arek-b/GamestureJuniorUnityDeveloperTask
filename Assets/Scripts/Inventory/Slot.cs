@@ -23,6 +23,8 @@ namespace Inventory
         private enum ItemState { Empty, NotMoving, Moving, Returning }
         private ItemState itemState = ItemState.Empty;
 
+        public ItemInSlot Item => item;
+
         private void Awake()
         {
             canvas = GetComponentInParent<Canvas>();
@@ -42,14 +44,16 @@ namespace Inventory
         {
             if (item == null)
                 return true;
-            return !item.HasItem;
+            return !item.NotEmpty;
         }
 
         public void Tap()
         {
             if (itemState != ItemState.NotMoving)
                 return;
-            item.GetComponent<Image>().color = Color.red; // todo: change this!
+            
+            // Possible TODO:
+            // An alternative method of swapping items by tapping on them could be implemented here.
         }
 
         public void StartDrag(TouchState data)
@@ -88,17 +92,13 @@ namespace Inventory
             item.StopMoving();
             scrollRect.vertical = true;
 
-            if (raycaster.Raycast(out EquippedSlot equippedSlot, data.position) && item.Item.itemType == equippedSlot.ItemType)
+            if (raycaster.Raycast(out EquippedSlot equippedSlot, data.position) && item.GetItem().itemType == equippedSlot.ItemType)
             {
-                equippedSlot.Equip(item);
-                itemState = ItemState.Empty;
-                item = null;
+                equippedSlot.Equip(this);
             }
-            else
-            {
-                itemState = ItemState.Returning;
-                item.Return(onReturned: () => itemState = ItemState.NotMoving);
-            }
+
+            itemState = ItemState.Returning;
+            item.Return(onReturned: () => itemState = ItemState.NotMoving);
         }
     }
 }
