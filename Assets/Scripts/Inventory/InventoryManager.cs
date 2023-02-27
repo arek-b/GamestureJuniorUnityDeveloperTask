@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Audio;
+using UI;
 using UnityEngine.Assertions;
 
 namespace Inventory
@@ -10,6 +11,7 @@ namespace Inventory
     {
         [SerializeField] private AudioPlayer audioPlayer = null;
         [SerializeField] private AudioClip[] equipAudioClips = null;
+        [SerializeField] private Alert equipAlert = null;
         [SerializeField] private Transform inventorySlotContainer = null;
         [SerializeField, HideInInspector] private List<Slot> slots = new();
 
@@ -38,6 +40,7 @@ namespace Inventory
         {
             Assert.IsNotNull(audioPlayer);
             Assert.IsNotNull(inventorySlotContainer);
+            Assert.IsNotNull(equipAlert);
         }
 
         private void OnEnable()
@@ -63,6 +66,7 @@ namespace Inventory
             slot.Item.SetItem(oldItem);
 
             PlayEquipAudio();
+            ShowEquipAlert(newItem.itemName);
 
             if (oldItem == null)
                 RemoveGap();
@@ -86,6 +90,11 @@ namespace Inventory
             if (equipAudioClips.Length == 0)
                 return;
             audioPlayer.PlayClip(equipAudioClips[random.Next(0, equipAudioClips.Length - 1)]);
+        }
+
+        private void ShowEquipAlert(string itemName)
+        {
+            equipAlert.DisplayAlert($"You have equipped {itemName}");
         }
     }
 }
