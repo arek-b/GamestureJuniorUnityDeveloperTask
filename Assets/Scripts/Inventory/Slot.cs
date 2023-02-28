@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UIInput;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.Assertions;
 
 namespace Inventory
 {
@@ -18,6 +19,9 @@ namespace Inventory
         private ItemInSlot item;
         private ScrollRect scrollRect;
 
+        private EquippedSlot equippedSlotSword = null;
+        private EquippedSlot equippedSlotShield = null;
+
         private Raycaster raycaster;
 
         private enum ItemState { Empty, NotMoving, Moving, Returning }
@@ -31,7 +35,22 @@ namespace Inventory
             graphicRaycaster = canvas.GetComponent<GraphicRaycaster>();
             scrollRect = GetComponentInParent<ScrollRect>();
             item = GetComponentInChildren<ItemInSlot>();
+            EquippedSlot[] equippedSlots = canvas.GetComponentsInChildren<EquippedSlot>(includeInactive: false);
+            foreach (EquippedSlot equippedSlot in equippedSlots)
+            {
+                if (equippedSlot.ItemType == ItemType.Sword)
+                    equippedSlotSword = equippedSlot;
+                else
+                    equippedSlotShield = equippedSlot;
+            }
             raycaster = new Raycaster(graphicRaycaster);
+            Assert.IsNotNull(canvas);
+            Assert.IsNotNull(graphicRaycaster);
+            Assert.IsNotNull(scrollRect);
+            Assert.IsNotNull(item);
+            Assert.IsNotNull(equippedSlotSword);
+            Assert.IsNotNull(equippedSlotShield);
+            Assert.IsNotNull(raycaster);
         }
 
         private void Start()
@@ -51,9 +70,11 @@ namespace Inventory
         {
             if (itemState != ItemState.NotMoving)
                 return;
-            
-            // Possible TODO:
-            // An alternative method of swapping items by tapping on them could be implemented here.
+
+            if (Item.GetItem().itemType == ItemType.Sword)
+                equippedSlotSword.Equip(this);
+            else
+                equippedSlotShield.Equip(this);
         }
 
         public void StartDrag(TouchState data)
