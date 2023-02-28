@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
-
-namespace Inventory
+﻿namespace Inventory
 {
     public interface IHasItem
     {
