@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.UI;
 
 namespace Inventory
 {
     public class EquippedSlot : MonoBehaviour, IHasItem
     {
+        [SerializeField] private EquippedSlotVisualizer visualizer;
         [SerializeField] private ItemType itemType;
         private Image childImage;
         private ItemScriptableObject item;
@@ -19,6 +21,8 @@ namespace Inventory
             foreach (Transform child in transform)
                 if (child.TryGetComponent(out childImage))
                     break;
+
+            Assert.IsNotNull(visualizer);
         }
 
         public void Equip(Slot slotWithItem)
@@ -37,6 +41,7 @@ namespace Inventory
             this.item = item;
             childImage.sprite = item.itemSprite;
             childImage.color = Color.white;
+            visualizer.Visualize();
         }
     }
 }
