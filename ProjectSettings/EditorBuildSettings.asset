@@ -9,4 +9,5 @@ EditorBuildSettings:
     path: Assets/Scenes/InventoryScreen.unity
     guid: 3fc8acdd13e6c734bafef6554d6fdbcd
   m_configObjects:
+    com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 4abd79424e9e1694bb90805e64f6b4b6, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: 3b8882f539bc3b24b8fb38b8b10c9f0e, type: 2}
