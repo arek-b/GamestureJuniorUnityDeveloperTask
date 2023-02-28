@@ -41,18 +41,17 @@ namespace Inventory
             targetPosition = transform.position;
         }
 
-        public void StartMoving(Transform newParent, float speed)
+        public void StartMoving(Transform newParent, float speed, Vector2 position)
         {
             if (isReturning)
                 return;
 
             this.speed = speed;
+            targetPosition = position;
             image.raycastTarget = false;
             transform.SetParent(newParent, worldPositionStays: true);
             if (updateCoroutine == null)
-            {
                 updateCoroutine = StartCoroutine(UpdateCoroutine());
-            }
         }
 
         private IEnumerator UpdateCoroutine()
@@ -63,6 +62,7 @@ namespace Inventory
                 yield return null;
             }
         }
+
         public void ContinueMoving(Vector2 position)
         {
             if (isReturning)

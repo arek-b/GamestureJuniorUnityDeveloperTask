@@ -17,6 +17,8 @@ namespace Inventory
 
         private readonly System.Random random = new();
 
+        private int lastAudioClipIndex = -1;
+
         private void OnValidate()
         {
             if (inventorySlotContainer == null)
@@ -87,9 +89,18 @@ namespace Inventory
 
         private void PlayEquipAudio()
         {
+            int clipIndex = 0;
             if (equipAudioClips.Length == 0)
                 return;
-            audioPlayer.PlayClip(equipAudioClips[random.Next(0, equipAudioClips.Length - 1)]);
+            else if (equipAudioClips.Length > 1)
+            {
+                do
+                    clipIndex = random.Next(0, equipAudioClips.Length - 1);
+                while (lastAudioClipIndex == clipIndex); // prevent playing the same clip twice in a row
+            }
+
+            audioPlayer.PlayClip(equipAudioClips[clipIndex]);
+            lastAudioClipIndex = clipIndex;
         }
 
         private void ShowEquipAlert(string itemName)

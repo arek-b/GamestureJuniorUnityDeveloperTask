@@ -38,7 +38,7 @@ namespace UI
                     y = rectTransform.rect.height,
                 };
             }
-            else
+            else // there is always supposed to be a RectTransform on the Alert because it's meant to be a UI element
                 throw new System.Exception($"{nameof(RectTransform)} not found on {nameof(Alert)}");
 
             if (TryGetComponent(out Outline outline))
@@ -62,6 +62,7 @@ namespace UI
                 rectTransform.anchoredPosition = Vector2.Lerp(rectTransform.anchoredPosition, visibleAnchoredPosition, Time.deltaTime * animationSpeed);
                 yield return null;
             }
+            rectTransform.anchoredPosition = visibleAnchoredPosition;
 
             yield return new WaitForSeconds(displayTimeSeconds);
 
@@ -70,6 +71,7 @@ namespace UI
                 rectTransform.anchoredPosition = Vector2.Lerp(rectTransform.anchoredPosition, hiddenAnchoredPosition, Time.deltaTime * animationSpeed);
                 yield return null;
             }
+            rectTransform.anchoredPosition = hiddenAnchoredPosition;
         }
 
         private bool ApproximatelyEqual(Vector2 a, Vector2 b)

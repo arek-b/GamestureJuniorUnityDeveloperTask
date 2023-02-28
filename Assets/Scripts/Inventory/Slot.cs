@@ -78,7 +78,7 @@ namespace Inventory
                 item.ContinueMoving(data.position);
             else
             {
-                item.StartMoving(newParent: canvas.transform, speed: dragFollowSpeed);
+                item.StartMoving(newParent: canvas.transform, speed: dragFollowSpeed, position: data.position);
                 itemState = ItemState.Moving;
                 scrollRect.vertical = false; // temporarily prevent ScrollRect from scrolling
             }
